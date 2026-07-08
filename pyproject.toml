@@ -14,4 +14,6 @@ dependencies = [
 [dependency-groups]
 dev = [
     "marimo>=0.23.13",
+    "matplotlib>=3.11.0",
+    "pandas>=3.0.3",
 ]

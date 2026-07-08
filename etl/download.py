@@ -3,6 +3,7 @@ import os
 from time import sleep
 
 import httpx
+import logging
 
 LEGISLATURE = 17
 # Liste des apis à télécharger
@@ -17,6 +18,8 @@ MAX_PAGE = 1000
 BATCH_SIZE = 500
 BASE_URL = "https://parlement.tricoteuses.fr/"
 
+# Configuration basique du log
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def save(data, api, page):
     # Modification : Sauvegarde par page pour éviter les doublons et les réécritures en cas de timeout pendant le DL
@@ -38,19 +41,13 @@ def get(page, base_url):
             response = httpx.get(url, timeout=API_READ_TIMEOUT)
             response.raise_for_status()
             return response
-        except httpx.HTTPStatusError as e:
-            # Si le serveur dit "Trop de requêtes" (429), on attend plus longtemps
-            if e.response.status_code == 429:
-                print(f"Rate limited. Attente de {wait_time}s...")
-                time.sleep(wait_time)
-                wait_time *= 2 # On double le temps d'attente
-            else:
-                raise e # Erreur fatale (ex: 404), on arrête
         except Exception as e:
-            print(f"Erreur de connexion (tentative {attempt+1}): {e}")
+            # On logue l'erreur avec le niveau WARNING
+            logging.warning(f"Tentative {attempt+1} échouée pour page {page}: {e}")
             time.sleep(wait_time)
-            wait_time *= 2
+            wait_time *= 2 
             
+    logging.error(f"Abandon après 5 tentatives pour la page {page}")
     return None
 
 def get_api_data(api, start_page): # Ajout du paramètre start_page
@@ -94,19 +91,20 @@ def merge_pages_to_json(api):
                 print(f"Erreur de lecture sur {filename}")
 
     # Sauvegarde du fichier final consolidé
-    with open(f"./data/{api}_final.json", "w") as f:
+    with open(f"./data/{api}.json", "w") as f:
         # On repasse en liste pour que le fichier final soit une liste d'objets
         json.dump(list(merged_data.values()), f, ensure_ascii=False, indent=2)
     
-    print(f"Fusion terminée ! {len(merged_data)} amendements uniques enregistrés.")
+    print(f"Fusion terminée ! {len(merged_data)} {api} uniques enregistrés.")
 
 def run_download():
     for api in APIS:
-        print("Fetching ", api)
+        logging.info(f"Début du fetch pour : {api}")
         for page, data in get_api_data(api, START_PAGE):
             save(data, api, page)
-            sleep(0.3)
-        
+            # Passage de 0.3 à 2.0 secondes pour être plus respectueux
+            sleep(2.0)
+
         # Une fois le téléchargement terminé :
         merge_pages_to_json(api)
 

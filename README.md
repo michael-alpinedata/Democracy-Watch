@@ -51,7 +51,7 @@ Il y a deux façons d'exécuter des commandes:
 
 #### Télécharger les données sur l'API des tricoteuses
 
-La commande suivante va télécharger sur l'API des [tricoteuses](https://www.tricoteuses.fr/) et créer des fichiers JSON dans le répertoire `./data/`. Pour rajouter un endpoint, il suffit de modifier la variable `APIS` dans `./etl/download.py`
+La commande suivante va télécharger sur l'API des [tricoteuses](https://www.tricoteuses.fr/) et créer des fichiers JSON dans le répertoire `./data/raw/`. Pour rajouter un endpoint, il suffit de modifier la variable `APIS` dans `./etl/download.py`
 
 ```bash
 uv run main.py -d
@@ -87,7 +87,7 @@ just all
 
 ## Comment marche l'ETL
 
-Après avoir exécuté `just download`, les données de l'API des tricoteuses sont sauvegardées dans le dossier `./data/` sous la forme de fichiers JSON.
+Après avoir exécuté `just download`, les données de l'API des tricoteuses sont sauvegardées dans le dossier `./data/raw/` sous la forme de fichiers JSON.
 L'ETL permet d'extraire des données de ces fichiers pour les sauvegarder dans la base de données. La base de données est représentée à l'aide de 
 modèles créés via [SqlAlchemy](https://docs.sqlalchemy.org/en/20/).
 
@@ -99,7 +99,7 @@ L'ETL est capable d'inférer à partir des modèles les fichiers à ouvrir et le
 ### Exemple
 
 
-Voici une partie du fichier `./data/dossiers.json`
+Voici une partie du fichier `./data/raw/dossiers.json`
 ```json
   {
     "uid": "DLR5L17N54464",

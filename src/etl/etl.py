@@ -1,4 +1,4 @@
-from etl.database import get_tables_definition
+from src.database import get_tables_definition
 from etl.extraction import extract
 from etl.loading import load
 
@@ -11,7 +11,7 @@ def _get_table_metadata(table):
 
 def run_etl():
     """
-    Extract from JSON files in './data' and persist(load) data in the databse.
+    Extract from JSON files in './data/raw' and persist(load) data in the databse.
 
     It uses the database schema to know what files to open, fields to read, and columns to populate.
     This requires that the JSON file's names and fields have a 1:1 correspondance in the DB.

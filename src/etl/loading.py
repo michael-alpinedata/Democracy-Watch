@@ -1,7 +1,7 @@
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from etl.database import get_engine
+from src.database import get_engine
 
 
 def load(table, data):

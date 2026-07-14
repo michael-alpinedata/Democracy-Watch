@@ -28,7 +28,7 @@ def _(mo):
 @app.cell
 def _(Path, mo):
     # Configuration des chemins d'accès aux données
-    DATA_DIR = Path("../data")
+    DATA_DIR = Path("../data/raw")
     AMENDEMENTS_JSON_PATH = DATA_DIR / "amendements.json"
 
     file_exists = AMENDEMENTS_JSON_PATH.exists()

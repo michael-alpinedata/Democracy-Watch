@@ -9,7 +9,8 @@ LEGISLATURE = 17
 # Liste des apis à télécharger
 APIS = ["dossiers", "documents", "amendements"]
 
-API_READ_TIMEOUT = 30 
+API_READ_TIMEOUT = 15 
+WAIT_TIME = 1
 
 # On peut définir dynamiquement le point de départ
 # Par exemple : on commence là où le fichier le plus récent s'est arrêté
@@ -23,8 +24,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 def save(data, api, page):
     # Modification : Sauvegarde par page pour éviter les doublons et les réécritures en cas de timeout pendant le DL
-    os.makedirs(f"./data/{api}", exist_ok=True)
-    with open(f"./data/{api}/page_{page}.json", "w") as f:
+    os.makedirs(f"./data/raw/{api}", exist_ok=True)
+    with open(f"./data/raw/{api}/page_{page}.json", "w") as f:
         json.dump(data, f)
 
 
@@ -35,7 +36,7 @@ def get(page, base_url):
     url = base_url + params
     
     # Stratégie de "Exponential Backoff" : on attend de plus en plus longtemps
-    wait_time = 2 
+    wait_time = WAIT_TIME 
     for attempt in range(5): # On essaie 5 fois avant d'abandonner
         try:
             response = httpx.get(url, timeout=API_READ_TIMEOUT)
@@ -54,7 +55,7 @@ def get_api_data(api, start_page): # Ajout du paramètre start_page
     base_url = BASE_URL + api + "/json"
     for page in range(start_page, MAX_PAGE):
         # On vérifie sur le disque avant de lancer la requête
-        if os.path.exists(f"./data/{api}/page_{page}.json"):
+        if os.path.exists(f"./data/raw/{api}/page_{page}.json"):
             print(f"\tpage {page} déjà présente, saut...")
             continue
             
@@ -71,7 +72,7 @@ def get_api_data(api, start_page): # Ajout du paramètre start_page
 
 def merge_pages_to_json(api):
     print(f"Fusion des pages pour : {api}...")
-    folder_path = f"./data/{api}"
+    folder_path = f"./data/raw/{api}"
     merged_data = {} # Dictionnaire indexé par UID pour le dédoublonnage
 
     # On liste tous les fichiers de page
@@ -91,7 +92,7 @@ def merge_pages_to_json(api):
                 print(f"Erreur de lecture sur {filename}")
 
     # Sauvegarde du fichier final consolidé
-    with open(f"./data/{api}.json", "w") as f:
+    with open(f"./data/raw/{api}.json", "w") as f:
         # On repasse en liste pour que le fichier final soit une liste d'objets
         json.dump(list(merged_data.values()), f, ensure_ascii=False, indent=2)
     

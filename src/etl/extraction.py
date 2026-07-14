@@ -1,6 +1,6 @@
 import json
 
-BASE_PATH = "./data/"
+BASE_PATH = "./data/raw/"
 
 
 def extract(filename: str, required_fields: list[str]) -> list[dict[str, str | int]]:

@@ -4,13 +4,13 @@ recipes:
 
 # Download all data from Tricoteuse: modify APIS in ./etl/download.py to add endpoints
 download:
-  uv run etl/download.py
+  uv run src/etl/download.py
 
 # Drop all tables and recreate the database
 db-rebuild:
   uv run main.py -r
 
-# Run the ETL: extract data from files in ./data and load them in Postgres
+# Run the ETL: extract data from files in ./data/raw and load them in Postgres
 etl:
   uv run main.py -e
 

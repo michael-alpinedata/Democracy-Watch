@@ -165,3 +165,6 @@ cython_debug/
 
 # Precommit hooks: ruff cache
 .ruff_cache
+
+# ONNX models and tokeinzer for embeddings
+models/

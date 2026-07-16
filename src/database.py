@@ -2,8 +2,8 @@ from os import getenv
 
 from sqlalchemy import URL, create_engine, pool
 
-import models  # noqa: F401  # pyright: ignore[reportUnusedImport]  # registers all ORM models with Base.metadata
-from models.base import Base
+import src.models  # noqa: F401  # pyright: ignore[reportUnusedImport]  # registers all ORM models with Base.metadata
+from src.models.base import Base
 
 
 def _get_db_url():

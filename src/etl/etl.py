@@ -1,6 +1,6 @@
 from src.database import get_tables_definition
-from etl.extraction import extract
-from etl.loading import load
+from src.etl.extraction import extract
+from src.etl.loading import load
 
 
 def _get_table_metadata(table):

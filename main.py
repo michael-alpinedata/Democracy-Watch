@@ -2,9 +2,9 @@ import argparse
 
 from dotenv import load_dotenv
 
-from etl.database import create_db
-from etl.download import run_download
-from etl.etl import run_etl
+from src.database import create_db
+from src.etl.download import run_download
+from src.etl.etl import run_etl
 
 
 def run(parser):

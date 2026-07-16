@@ -1,15 +1,17 @@
 from os import getenv
+import psycopg
 
 from sqlalchemy import URL, create_engine, pool
 
-import src.models  # noqa: F401  # pyright: ignore[reportUnusedImport]  # registers all ORM models with Base.metadata
+import src.models  # noqa: F401  # pyright: ignore[reportUnusedImport]
 from src.models.base import Base
 
 
-def _get_db_url():
+def _get_db_url(database=None):
     PG_USER = getenv("PG_USER")
     PG_PWD = getenv("PG_PWD")
-    PG_DB = getenv("PG_DB")
+    # Si aucun nom de db n'est fourni, on prend celle du .env
+    PG_DB = database or getenv("PG_DB")
     PG_HOST = getenv("PG_HOST", "localhost")
     PG_PORT = getenv("PG_PORT", "5432")
     return URL.create(
@@ -32,10 +34,35 @@ def get_engine():
 def create_db():
     """Drop the current DB and recreate from the schema."""
     print("Creating DB")
+    
+    target_db = getenv("PG_DB")
+    
+    # 1. Connexion à la base "postgres" par défaut pour créer/recréer la db cible
+    # On passe autocommit=True car PostgreSQL interdit le 'CREATE/DROP DATABASE' dans une transaction
+    url_postgres = _get_db_url(database="postgres")
+    
+    print(f"Checking/Creating database '{target_db}'...")
+    with psycopg.connect(
+        host=url_postgres.host,
+        port=url_postgres.port,
+        user=url_postgres.username,
+        password=url_postgres.password,
+        dbname="postgres",
+        autocommit=True
+    ) as conn:
+        with conn.cursor() as cur:
+            # On supprime la db si elle existe (simule le drop_all global)
+            cur.execute(f'DROP DATABASE IF EXISTS "{target_db}" WITH (FORCE);')
+            # On la recrée à neuf
+            cur.execute(f'CREATE DATABASE "{target_db}";')
+
+    # 2. Maintenant qu'elle existe, SQLAlchemy peut s'y connecter normalement
     engine = get_engine()
     print(Base.metadata.tables)
-    Base.metadata.drop_all(engine)
+    
+    # Plus besoin de drop_all vu qu'on vient de drop la DB entière
     Base.metadata.create_all(engine)
+    
     print("Db was created")
     return Base.metadata.tables
 

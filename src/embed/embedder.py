@@ -7,10 +7,10 @@ from tokenizers import Tokenizer
 
 class Embedder:
     def __init__(self, path: Union[str, Path] = None):
-        # Par défaut, on cible le dossier models à la racine du projet
+        # Par défaut, on cible le dossier embed_models à la racine du projet
         if path is None:
             project_root = Path(__file__).resolve().parents[2]
-            path = project_root / "models" / "Xenova" / "paraphrase-multilingual-MiniLM-L12-v2"
+            path = project_root / "embed_models" / "Xenova" / "paraphrase-multilingual-MiniLM-L12-v2"
         else:
             path = Path(path)
             

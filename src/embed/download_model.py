@@ -15,10 +15,10 @@ ONNX_CANDIDATES = [
 ]
 
 def download(repo, dest=None):
-    # Si aucun chemin n'est fourni, on cible "models/" à la racine du projet
+    # Si aucun chemin n'est fourni, on cible "embed_models/" à la racine du projet
     if dest is None:
         project_root = Path(__file__).resolve().parents[2]
-        dest = project_root / "models" / repo
+        dest = project_root / "embed_models" / repo
     else:
         dest = Path(dest) / repo
         

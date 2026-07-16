@@ -167,4 +167,4 @@ cython_debug/
 .ruff_cache
 
 # ONNX models and tokeinzer for embeddings
-models/
+embed_models/

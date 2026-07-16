@@ -1,25 +1,30 @@
 from src.database import get_tables_definition
 from src.etl.extraction import extract
 from src.etl.loading import load
-
+from src.etl.transform import transform_amendements
 
 def _get_table_metadata(table):
     tablename = table.name
-    fields = [field.name for field in table.columns]
+    # On exclut 'embedding' des champs à chercher dans le JSON
+    fields = [field.name for field in table.columns if field.name != 'embedding']
     return tablename, fields
-
 
 def run_etl():
     """
-    Extract from JSON files in './data/raw' and persist(load) data in the databse.
-
-    It uses the database schema to know what files to open, fields to read, and columns to populate.
-    This requires that the JSON file's names and fields have a 1:1 correspondance in the DB.
-        * filename => tablename
-        * JSON fields => table columns
+    Extract from JSON files in './data/raw', transform if needed, and persist data.
     """
     tables = get_tables_definition()
     for table in tables:
         tablename, fields = _get_table_metadata(table)
+        
+        # 1. EXTRACT : Chargement en mémoire depuis le JSON
         data = extract(tablename, fields)
-        load(table, data)
+        
+        # 2. TRANSFORM : Interception ciblée (Design Pattern : Strategy / Router)
+        if tablename == "amendements" and data:
+            print(f"Transformation en cours pour la table : {tablename}...")
+            data = transform_amendements(data)
+            
+        # 3. LOAD : Insertion en base de données
+        if data:
+            load(table, data)
